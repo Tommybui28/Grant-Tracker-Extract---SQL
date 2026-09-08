@@ -111,16 +111,19 @@ QualifyingTypes AS (
     FROM     RV_ContactTypes AS ct
     GROUP BY ct.ContactID
     HAVING   COUNT(*) > 1
-          OR MAX(ct.Type) NOT IN ('Staff Member','Peer reviewer','Department Head','Finance Officer')
+          OR MAX(ct.Type) NOT IN ('Staff Member','Peer reviewer','Department Head','Finance Officer','Contributor')
 ),
 ContactsToExclude AS (
     SELECT   gc.ContactID
     FROM     RV_GrantContacts AS gc
     JOIN     RV_Grants        AS g ON gc.GrantID = g.ID
     GROUP BY gc.ContactID
-    HAVING   COUNT(*) = SUM(CASE WHEN g.Outcome = 'Rejected'
-                                  AND g.SubmittedOn < DATEADD(YEAR, -9, GETDATE())
-                             THEN 1 ELSE 0 END)
+    HAVING   COUNT(*) = SUM(
+                CASE WHEN g.Status  IN ('Deleted', 'Pre-Submission')
+                      OR  g.Outcome = 'Withdrawn'
+                      OR (g.Outcome = 'Rejected' AND g.SubmittedOn < DATEADD(YEAR, -9, GETDATE()))
+                     THEN 1 ELSE 0 END
+             )
 )
 SELECT   c.*
 INTO     #EligibleContacts
@@ -136,6 +139,7 @@ SELECT e.*  FROM RV_EmploymentHistory  AS e WHERE e.ContactID IN (SELECT ID FROM
 SELECT d.*  FROM RV_DynamicFieldValues AS d WHERE d.EntityID  IN (SELECT ID FROM #EligibleContacts);
 
 DROP TABLE #EligibleContacts;
+
 ```
 
 ---
