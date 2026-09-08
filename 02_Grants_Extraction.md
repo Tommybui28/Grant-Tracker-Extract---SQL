@@ -43,8 +43,8 @@ SELECT g.*
 INTO   #EligibleGrants
 FROM   RV_Grants AS g
 WHERE  g.Status  NOT IN ('Deleted', 'Pre-Submission')
-  AND  g.Outcome NOT IN ('Invited', 'Rejected')
-  AND  g.SubmittedOn >= DATEADD(YEAR, -9, GETDATE());
+  AND  g.Outcome NOT IN ('Invited', 'Withdrawn')
+  AND  NOT (g.Outcome = 'Rejected' AND g.SubmittedOn < DATEADD(YEAR, -9, GETDATE()));
 
 -- Parent table
 SELECT * FROM #EligibleGrants;
