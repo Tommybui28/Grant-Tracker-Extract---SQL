@@ -17,11 +17,12 @@ Extracts eligible grants from `RV_Grants` and every related table carrying a `Gr
 ## Step 1 — Eligible grants only
 
 ```sql
-SELECT   g.*
-FROM     RV_Grants AS g
-WHERE    g.Status  NOT IN ('Deleted', 'Pre-Submission')
-  AND    g.Outcome NOT IN ('Invited', 'Rejected')
-  AND    g.SubmittedOn >= DATEADD(YEAR, -9, GETDATE());
+SELECT g.*
+INTO   #EligibleGrants
+FROM   RV_Grants AS g
+WHERE  g.Status  NOT IN ('Deleted', 'Pre-Submission')
+  AND  g.Outcome NOT IN ('Invited', 'Withdrawn')
+  AND  NOT (g.Outcome = 'Rejected' AND g.SubmittedOn < DATEADD(YEAR, -9, GETDATE()));
 ```
 
 ---
