@@ -126,12 +126,18 @@ ContactsToExclude AS (
     JOIN     RV_Grants        AS g ON gc.GrantID = g.ID
     GROUP BY gc.ContactID
     HAVING   COUNT(*) = SUM(
-                CASE WHEN g.Status  IN ('Deleted', 'Pre-Submission')
-                      OR  g.Outcome = 'Withdrawn'
-                      OR (g.Outcome = 'Rejected' AND g.SubmittedOn < DATEADD(YEAR, -9, GETDATE()))
-                     THEN 1 ELSE 0 END
+                 CASE
+                     WHEN g.Outcome = 'Rejected'
+                      AND g.SubmittedOn < DATEADD(YEAR, -9, GETDATE())
+                     THEN 1
+                     WHEN g.Outcome IN ('Withdrawn', 'Invited')
+                     THEN 1
+                     WHEN g.Status IN ('Deleted', 'Pre-Submission')
+                     THEN 1
+                     ELSE 0
+                 END
              )
-)
+),
 SELECT   c.*
 INTO     #EligibleContacts
 FROM     FilteredContacts AS c
