@@ -137,7 +137,7 @@ ContactsToExclude AS (
                      ELSE 0
                  END
              )
-),
+)
 SELECT   c.*
 INTO     #EligibleContacts
 FROM     FilteredContacts AS c
@@ -152,6 +152,7 @@ SELECT e.*  FROM RV_EmploymentHistory  AS e WHERE e.ContactID IN (SELECT ID FROM
 SELECT d.*  FROM RV_DynamicFieldValues AS d WHERE d.EntityID  IN (SELECT ID FROM #EligibleContacts);
 
 DROP TABLE #EligibleContacts;
+
 
 ```
 
