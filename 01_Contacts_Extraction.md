@@ -57,7 +57,9 @@ QualifyingTypes AS (
 /*───────────────────────────────────────────────────────────────
   Step 3: Grants exclusion
     Exclude contacts whose grants are ALL:
-        Outcome = 'Rejected' AND SubmittedOn older than 9 years
+        (Outcome = 'Rejected' AND SubmittedOn > 9 years old)
+        OR Outcome IN ('Withdrawn', 'Invited')
+        OR Status IN ('Deleted', 'Pre-Submission')
     (Contacts with no grants are NOT excluded here.)
 ───────────────────────────────────────────────────────────────*/
 ContactsToExclude AS (
@@ -69,7 +71,12 @@ ContactsToExclude AS (
                  CASE
                      WHEN g.Outcome = 'Rejected'
                       AND g.SubmittedOn < DATEADD(YEAR, -9, GETDATE())
-                     THEN 1 ELSE 0
+                     THEN 1
+                     WHEN g.Outcome IN ('Withdrawn', 'Invited')
+                     THEN 1
+                     WHEN g.Status IN ('Deleted', 'Pre-Submission')
+                     THEN 1
+                     ELSE 0
                  END
              )
 ),
